@@ -1,25 +1,52 @@
-import logo from './logo.svg';
+import React, { useEffect } from 'react';
+import { connect } from 'react-redux';
+import { setArtId, fetchArtData } from './Features/artSlice';
+import Gallery from './Gallery';
+import ButtonBar from './ButtonBar';
 import './App.css';
 
-function App() {
+function App({ artId, data, dispatchSetArtId, dispatchFetchArtData }) {
+  useEffect(() => {
+    document.title = `Art ID: ${artId}`;
+    dispatchFetchArtData(artId);
+  }, [artId, dispatchFetchArtData]);
+
+  const handleIterate = (e) => {
+    dispatchSetArtId(artId + Number(e.target.value));
+  };
+
+  const handleInputChange = (e) => {
+    dispatchSetArtId(Number(e.target.value));
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <input
+        type="number"
+        value={artId}
+        onChange={handleInputChange}
+        min="1"
+        max="471581"
+      />
+      <Gallery
+        objectImg={data.primaryImage}
+        artist={data.artistDisplayName}
+        title={data.title}
+        medium={data.medium}
+      />
+      <ButtonBar handleIterate={handleIterate} />
     </div>
   );
 }
 
-export default App;
+const mapStateToProps = (state) => ({
+  artId: state.art.artId,
+  data: state.art.data,
+});
+
+const mapDispatchToProps = {
+  dispatchSetArtId: setArtId,
+  dispatchFetchArtData: fetchArtData,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
